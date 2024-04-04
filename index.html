@@ -42,7 +42,7 @@
         top: 0;
         left: 0;
         pointer-events: none;
-        opacity: 50;
+        opacity: 0;
       }
 
       p {
@@ -146,14 +146,46 @@
         <p></p>
         <input autofocus />
       </section>
+      <section id="results">
+        <h2>wpm</h2>
+        <h3 id="results-wpm"></h3>
+        <h2>accuracy</h2>
+        <h3 id="results-accuracy"></h3>
+        <button id="reload-button">
+          Reload
+          <svg
+            width="44"
+            height="44"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="000"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M9 4.55a8 8 0 0 1 6 14.9m0 -4.45v5h5" />
+            <path d="M5.63 7.16l0 .01" />
+            <path d="M4.06 11l0 .01" />
+            <path d="M4.63 15.1l0 .01" />
+            <path d="M7.16 18.37l0 .01" />
+            <path d="M11 19.94l0 .01" />
+          </svg>
+        </button>
+      </section>
     </main>
 
     <script>
       const $time = document.querySelector("time");
       const $paragraph = document.querySelector("p");
       const $input = document.querySelector("input");
+      const $game = document.querySelector("#game");
+      const $results = document.querySelector("#results");
+      const $wpm = $results.querySelector("#results-wpm");
+      const $accuracy = $results.querySelector("#results-accuracy");
+      const $reloadButton = document.querySelector("#reload-button");
 
-      const INITIAL_TIME = 30;
+      const INITIAL_TIME = 3;
 
       const TEXT = `The quick brown fox jumps over the lazy dog and the lazy dog barks at the quick brown fox`;
 
@@ -164,6 +196,11 @@
       initEvents();
 
       function initGame() {
+        $game.style.display = "flex";
+        $results.style.display = "none";
+        $input.value = "";
+        $input.focus();
+
         words = TEXT.split(" ").slice(0, 32);
         currentTime = INITIAL_TIME;
 
@@ -202,6 +239,7 @@
 
         $input.addEventListener("keydown", onKeyDown);
         $input.addEventListener("keyup", onKeyUp);
+        $button.addEventListener("click", initGame);
       }
 
       function onKeyDown(event) {
@@ -299,7 +337,22 @@
       }
 
       function gameOver() {
-        console.log("game over");
+        $game.style.display = "none";
+        $results.style.display = "flex";
+
+        const correctWords = $paragraph.querySelectorAll("word.correct").length;
+        const correctLetters =
+          $paragraph.querySelectorAll("letter.correct").length;
+        const incorrectLetters =
+          $paragraph.querySelectorAll("letter.incorrect").length;
+
+        const totalLetters = correctLetters + incorrectLetters;
+        const accuracy =
+          totalLetters > 0 ? (correctLetters / totalLetters) * 100 : 0;
+
+        const wpm = (correctWords * 60) / INITIAL_TIME;
+        $wpm.textContent = wpm.toFixed(2);
+        $accuracy.textContent = `${accuracy.toFixed(2)}%`;
       }
     </script>
   </body>
